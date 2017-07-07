@@ -1,149 +1,174 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.Common;
 
 namespace LightInject.NServiceBus
 {
-    using System.CodeDom;
-    using System.Linq.Expressions;
-    using System.Net;
-    using System.Reflection;
-    using global::NServiceBus;
-    using global::NServiceBus.ObjectBuilder.Common;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using LightInject;
+
     public class LightInjectObjectBuilder : IContainer
     {
-        private IServiceContainer serviceContainer = new ServiceContainer(new ContainerOptions() {EnableVariance = false});
-        
-        private Scope scope;
-
-        private bool isRootScope;
-
+        IServiceContainer container;
+        Scope scope;
+        bool isRootScope;
 
         public LightInjectObjectBuilder()
         {
-            serviceContainer.ScopeManagerProvider = new PerThreadScopeManagerProvider();
-            scope = serviceContainer.BeginScope();
+            container = new ServiceContainer(new ContainerOptions { EnableVariance = false });
+            scope = container.BeginScope();
             isRootScope = true;
         }
 
         public LightInjectObjectBuilder(IServiceContainer serviceContainer)
         {
-            this.serviceContainer = serviceContainer;
+            container = serviceContainer;
             scope = serviceContainer.BeginScope();
             isRootScope = false;
-        }     
+        }
 
         public void Dispose()
         {
             scope.Dispose();
+
             if (isRootScope)
             {
-                serviceContainer.Dispose();
+                container.Dispose();
             }
         }
 
         public object Build(Type typeToBuild)
         {
-            return serviceContainer.GetInstance(typeToBuild);
+            return scope?.GetInstance(typeToBuild);
         }
 
         public IContainer BuildChildContainer()
         {
-            return new LightInjectObjectBuilder(serviceContainer);
+            return new LightInjectObjectBuilder(container);
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return serviceContainer.GetAllInstances(typeToBuild);
+            return scope?.GetAllInstances(typeToBuild);
         }
 
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
-        {           
-            serviceContainer.Register(component, GetLifeTime(dependencyLifecycle));
-            var interfaces = component.GetInterfaces();
+        {
+            ThrowIfCalledOnChildContainer();
+
+            if (HasComponent(component))
+            {
+                return;
+            }
+
+            container.Register(component, GetLifeTime(dependencyLifecycle));
+
+            var interfaces = GetAllServices(component);
+
             foreach (var serviceType in interfaces)
             {
-                serviceContainer.Register(serviceType, () => serviceContainer.GetInstance(component), GetLifeTime(dependencyLifecycle), component.FullName);
+                container.Register(serviceType, s => s.GetInstance(component), GetLifeTime(dependencyLifecycle), component.FullName);
             }
         }
-       
+
         public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
         {
-            serviceContainer.Register<T>(factory => component(), GetLifeTime(dependencyLifecycle));
-            var servicesTypes = typeof(T).GetInterfaces();
-            
-            foreach (var servicesType in servicesTypes)
+            ThrowIfCalledOnChildContainer();
+
+            var componentType = typeof(T);
+
+            if (HasComponent(componentType))
             {
-               serviceContainer.Register(servicesType, () => serviceContainer.GetInstance<T>(), GetLifeTime(dependencyLifecycle), typeof(T).FullName);
+                return;
             }
-            
+
+            container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
+
+            var interfaces = GetAllServices(componentType);
+
+            foreach (var servicesType in interfaces)
+            {
+                container.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
+            }
         }
 
-
-        /// <summary>
-        /// Sets the value to be configured for the given property of the 
-        ///             given component type.
-        /// </summary>
-        /// <param name="component">The interface type.</param><param name="property">The property name to be injected.</param><param name="value">The value to assign to the <paramref name="property"/>.</param>
-        public void ConfigureProperty(Type component, string property, object value)
-        {
-            serviceContainer.Initialize(sr => sr.ServiceType == component, (factory, instance) => component.GetProperty(property).SetValue(instance, value));
-        }
-
-        private ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
-        {
-            if (dependencyLifecycle == DependencyLifecycle.SingleInstance)
-            {
-                return new PerContainerLifetime();
-            }
-            if (dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork)
-            {
-                return new PerScopeLifetime();
-            }
-            return null;
-        }
-
-
-        /// <summary>
-        /// Registers the given instance as the singleton that will be returned for the given type.
-        /// </summary>
-        /// <param name="lookupType">The interface type.</param><param name="instance">The implementation instance.</param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            var serviceRegistration = new ServiceRegistration();
-            serviceRegistration.ServiceType = lookupType;
-            serviceRegistration.ServiceName = string.Empty;
-            serviceRegistration.Lifetime = new PerContainerLifetime();
-            serviceRegistration.Value = instance;
-            serviceContainer.Register(serviceRegistration);
+            ThrowIfCalledOnChildContainer();
+
+            container.RegisterInstance(lookupType, instance);
         }
 
         public bool HasComponent(Type componentType)
         {
-            return serviceContainer.CanGetInstance(componentType, string.Empty);
+            return container.CanGetInstance(componentType, string.Empty);
         }
 
         public void Release(object instance)
         {
-            //throw new NotImplementedException();
+        }
+
+        static ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
+        {
+            switch (dependencyLifecycle)
+            {
+                case DependencyLifecycle.InstancePerCall:
+                    return new PerRequestLifeTime();
+                case DependencyLifecycle.InstancePerUnitOfWork:
+                    return new PerScopeLifetime();
+                case DependencyLifecycle.SingleInstance:
+                    return new PerContainerLifetime();
+                default:
+                    throw new Exception();
+            }
+        }
+
+        static IEnumerable<Type> GetAllServices(Type type)
+        {
+            if (type == null)
+            {
+                return new List<Type>();
+            }
+
+            var result = new List<Type>(type.GetInterfaces());
+
+            foreach (var interfaceType in type.GetInterfaces())
+            {
+                result.AddRange(GetAllServices(interfaceType));
+            }
+
+            return result.Distinct();
+        }
+
+        void ThrowIfCalledOnChildContainer()
+        {
+            if (!isRootScope)
+            {
+                throw new InvalidOperationException("Reconfiguration of child containers is not allowed.");
+            }
         }
     }
-   
-    public static class ContainerExtensions
+
+    static class LightInjectRegistryExtensions
     {
-        public static void Register(this IServiceRegistry registry, Type serviceType, Func<object> factoryDelegate, ILifetime lifetime, string serviceName)
+        public static void Register(this IServiceRegistry registry, Type serviceType, Func<IServiceFactory, object> factoryDelegate, ILifetime lifetime, string serviceName)
         {
-            var invokeExpression = Expression.Invoke(Expression.Constant(factoryDelegate));
+            var parameterExpression = Expression.Parameter(typeof(IServiceFactory), "factory");
+            var invokeExpression = Expression.Invoke(Expression.Constant(factoryDelegate), parameterExpression);
             var castExpression = Expression.Convert(invokeExpression, serviceType);
-            var lambdaExpression = Expression.Lambda(castExpression,Expression.Parameter(typeof(IServiceFactory),"factory"));
+            var lambdaExpression = Expression.Lambda(castExpression, parameterExpression);
             var lambda = lambdaExpression.Compile();
-            var serviceRegistration = new ServiceRegistration();
-            serviceRegistration.ServiceType = serviceType;
-            serviceRegistration.ServiceName = serviceName;
-            serviceRegistration.FactoryExpression = lambda;
-            serviceRegistration.Lifetime = lifetime;
+
+            var serviceRegistration = new ServiceRegistration
+            {
+                ServiceType = serviceType,
+                ServiceName = serviceName,
+                FactoryExpression = lambda,
+                Lifetime = lifetime
+            };
+
             registry.Register(serviceRegistration);
         }
     }
