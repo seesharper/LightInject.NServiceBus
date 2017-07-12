@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>LightInject.NServiceBus.Source</id>
+        <version>[VERSION]</version>
+        <authors>Bernhard Richter</authors>
+        <owners>Bernhard Richter</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>http://www.lightinject.net/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Allows LightInject to be used as an external container with NServiceBus. See LightInject.NServiceBus for the binary distribution.</description>
+        <releaseNotes>http://www.lightinject.net/#whatsnew</releaseNotes>
+        <copyright>Bernhard Richter</copyright>
+        <tags>NServiceBus Ioc Dependency-Injection Inversion-of-Control</tags>
+      <dependencies>
+        <group targetFramework=".NETFramework4.5" />        
+      </dependencies>
+    </metadata>
+    <files>        
+        <file src="LightInject.NServiceBus.cs.pp" target="content\net45\LightInject\LightInject.NServiceBus.cs.pp" />                
+    </files>    
+</package>

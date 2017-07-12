@@ -1,15 +1,16 @@
-﻿namespace LightInject.NServiceBus.Tests
-{
-    using global::NServiceBus.ContainerTests;
-    using NUnit.Framework;
+﻿using System;
+using NServiceBus.ContainerTests;
+using NUnit.Framework;
 
+namespace NServiceBus.ContainerTests
+{
     [SetUpFixture]
     public class SetUpFixture
     {
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
-            TestContainerBuilder.ConstructBuilder = () => new LightInjectObjectBuilder();
+            TestContainerBuilder.ConstructBuilder = () => new LightInject.NServiceBus.LightInjectObjectBuilder();
         }
     }
 }

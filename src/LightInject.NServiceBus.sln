@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightInject.NServiceBus", "LightInject.NServiceBus\LightInject.NServiceBus.csproj", "{8AFA0EA4-7BFF-4CD6-B533-F510DCEF916A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightInject.NServiceBus", "LightInject.NServiceBus\LightInject.NServiceBus.csproj", "{A28477F4-92E8-48DB-834A-5777AA242763}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightInject.NServiceBus.Tests", "LightInject.NServiceBus.Tests\LightInject.NServiceBus.Tests.csproj", "{F85EBB55-68DF-4413-906F-4BAF95E60A46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightInject.NServiceBus.Tests", "LightInject.NServiceBus.Tests\LightInject.NServiceBus.Tests.csproj", "{226F0ADB-295C-46FC-B80D-D054C7E5B00F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8AFA0EA4-7BFF-4CD6-B533-F510DCEF916A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AFA0EA4-7BFF-4CD6-B533-F510DCEF916A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AFA0EA4-7BFF-4CD6-B533-F510DCEF916A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AFA0EA4-7BFF-4CD6-B533-F510DCEF916A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F85EBB55-68DF-4413-906F-4BAF95E60A46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F85EBB55-68DF-4413-906F-4BAF95E60A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F85EBB55-68DF-4413-906F-4BAF95E60A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F85EBB55-68DF-4413-906F-4BAF95E60A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A28477F4-92E8-48DB-834A-5777AA242763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A28477F4-92E8-48DB-834A-5777AA242763}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A28477F4-92E8-48DB-834A-5777AA242763}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A28477F4-92E8-48DB-834A-5777AA242763}.Release|Any CPU.Build.0 = Release|Any CPU
+		{226F0ADB-295C-46FC-B80D-D054C7E5B00F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{226F0ADB-295C-46FC-B80D-D054C7E5B00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{226F0ADB-295C-46FC-B80D-D054C7E5B00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{226F0ADB-295C-46FC-B80D-D054C7E5B00F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

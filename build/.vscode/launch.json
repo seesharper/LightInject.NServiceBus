@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",                                    
+            "program": "C:/ProgramData/Chocolatey/lib/csx/csx/csx.exe",            
+            "args": ["${file}","pack"],
+            "cwd": "${workspaceRoot}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "requireExactSource": false
+        }
+    ]
+}
+
