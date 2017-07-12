@@ -17,7 +17,10 @@ namespace LightInject.NServiceBus
 
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer(new ContainerOptions { EnableVariance = false });
+            container = new ServiceContainer(new ContainerOptions {EnableVariance = false})
+            {
+                ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider()
+            };
             scope = container.BeginScope();
             isRootScope = true;
         }
