@@ -9,6 +9,7 @@
 #load "NuGet.csx"
 #load "MsTest.csx"
 #load "Write.csx"
+#load "NUnit.csx"
 
 using System.IO;
 using System.Xml;
@@ -65,7 +66,8 @@ private void Test()
 {
     DotNet.Test(BuildContext.BinaryTestProjectFolder);
     DotNet.Test(BuildContext.SourceTestProjectFolder);    
-    //AnalyzeTestCoverage();    
+    
+    AnalyzeTestCoverage();    
 }
 
 private void Pack()
@@ -94,9 +96,10 @@ private void AnalyzeTestCoverage()
 }
 
 private void AnalyzeTestCoverage(string frameworkMoniker)
-{	    
-	string pathToTestAssembly = Path.Combine(BuildContext.BinaryTestProjectFolder, $@"bin\Release\{frameworkMoniker}\{BuildContext.ProjectName}.Tests.dll");	    
-    MsTest.RunWithCodeCoverage(pathToTestAssembly, $"{BuildContext.ProjectName}.dll");
+{	            
+    string pathToTestAssembly = Path.Combine(BuildContext.BinaryTestProjectFolder, $@"bin\Release\{frameworkMoniker}\{BuildContext.ProjectName}.Tests.dll");	    
+    NUnit.AnalyzeCodeCoverage(pathToTestAssembly,$"+[{BuildContext.ProjectName}]*");
+    
 }
 
 
