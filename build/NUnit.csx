@@ -3,6 +3,8 @@
 #load "OpenCover.csx"
 #load "Context.csx"
 #load "CodeCov.csx"
+
+
 public static class NUnit
 {
     private static readonly string pathToTestRunner;
@@ -16,7 +18,8 @@ public static class NUnit
     public static void AnalyzeCodeCoverage(string pathToTestAssembly, string filter)
     {
         string pathToCoverageFile = Path.Combine(Path.GetDirectoryName(pathToTestAssembly),"coverage.xml");
-        var testRunnerArgs = $"{pathToTestAssembly}";
+        var testRunnerArgs = $"{pathToTestAssembly} --work={Path.GetDirectoryName(pathToTestAssembly)}";
+        Command.Execute(pathToTestRunner, testRunnerArgs, ".");
         OpenCover.Execute(pathToTestRunner, testRunnerArgs, pathToCoverageFile, filter);
         CodeCov.Upload(pathToCoverageFile);
     }
